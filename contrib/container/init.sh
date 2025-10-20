@@ -68,8 +68,8 @@ if [[ "$1" == "start" ]]; then
     echo "Collecting static files..."
     python manage.py collectstatic --noinput
     
-    # Use gunicorn for production deployment
-    exec gunicorn -c ../../gunicorn.conf.py InvenTree.wsgi -b 0.0.0.0:${PORT:-8000}
+    # Use gunicorn for production deployment (absolute config path, explicit chdir)
+    exec gunicorn -c ${INVENTREE_HOME}/gunicorn.conf.py InvenTree.wsgi -b 0.0.0.0:${PORT:-8000} --chdir ${INVENTREE_BACKEND_DIR}/InvenTree
 elif [[ "$1" == "worker" ]]; then
     echo "Starting InvenTree background worker..."
     exec invoke worker
