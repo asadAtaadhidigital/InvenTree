@@ -55,5 +55,15 @@ fi
 
 cd ${INVENTREE_HOME}
 
-# Launch the CMD *after* the ENTRYPOINT completes
-exec "$@"
+# Handle special commands
+if [[ "$1" == "start" ]]; then
+    echo "Starting InvenTree production server..."
+    # Use gunicorn for production deployment
+    exec gunicorn -c ./gunicorn.conf.py InvenTree.wsgi -b 0.0.0.0:${PORT:-8000} --chdir ${INVENTREE_BACKEND_DIR}/InvenTree
+elif [[ "$1" == "worker" ]]; then
+    echo "Starting InvenTree background worker..."
+    exec invoke worker
+else
+    # Launch the CMD *after* the ENTRYPOINT completes
+    exec "$@"
+fi
