@@ -58,8 +58,18 @@ cd ${INVENTREE_HOME}
 # Handle special commands
 if [[ "$1" == "start" ]]; then
     echo "Starting InvenTree production server..."
+    
+    # Run database migrations first
+    echo "Running database migrations..."
+    cd ${INVENTREE_BACKEND_DIR}/InvenTree
+    python manage.py migrate --noinput
+    
+    # Collect static files
+    echo "Collecting static files..."
+    python manage.py collectstatic --noinput
+    
     # Use gunicorn for production deployment
-    exec gunicorn -c ./gunicorn.conf.py InvenTree.wsgi -b 0.0.0.0:${PORT:-8000} --chdir ${INVENTREE_BACKEND_DIR}/InvenTree
+    exec gunicorn -c ../../gunicorn.conf.py InvenTree.wsgi -b 0.0.0.0:${PORT:-8000}
 elif [[ "$1" == "worker" ]]; then
     echo "Starting InvenTree background worker..."
     exec invoke worker
